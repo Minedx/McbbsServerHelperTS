@@ -26,8 +26,8 @@
 
     let jq = jQuery.noConflict();
     let versionList = [
-        '1.19', '1.19.1', '1.19.2', '1.19.3',
-        '1.18', '1.18.1', '1.18.2',
+        '1.19.3', '1.19.2', '1.19.1', '1.19',
+        '1.18.2', '1.18.1', '1.18',
         '1.17.1', '1.17',
         '1.16.5', '1.16.4', '1.16.3', '1.16.2', '1.16.1', '1.16',
         '1.15.2', '1.15.1', '1.15',
@@ -118,34 +118,57 @@
         // single version
         if (serverVersion.includes('-')) {
             if (serverVersion !== getTitlePart(threadTitle, 'ServerVersion')) addWarningMsg('标题与模板服务器版本不匹配.', 'warn');
-        } else {
+        } //other version
+        else if (serverVersion.includes('其他版本'))
+            addWarningMsg('存在其他版本 请自行判断', 'check');
+        else {
             //multi version
             let firstVer = ((getTitlePart(threadTitle, 'ServerVersion') as string).split('-')[0] as string).toLowerCase();
             let lastVer = ((getTitlePart(threadTitle, 'ServerVersion') as string).split('-')[1] as string).toLowerCase();
             let correctVersionList: string[] = [];
-            versionList.map(e => {
-                //pre define big version
-                let thisMiddleVersion = getMiddleVersion(e);
-                let firstMiddleVersion = getMiddleVersion(firstVer);
-                let lastMiddleVersion = getMiddleVersion(lastVer);
-                if (firstMiddleVersion > lastMiddleVersion) {
-                    let tmp = firstMiddleVersion;
-                    firstMiddleVersion = lastMiddleVersion;
-                    lastMiddleVersion = tmp;
-                }
-                console.log(`small: ${firstMiddleVersion}`);
-                console.log(`big: ${lastMiddleVersion}`);
-                console.log(`compare: ${thisMiddleVersion}`);
+            if (firstVer < lastVer) {
+                let tmp = firstVer;
+                firstVer = lastVer;
+                lastVer = tmp;
+            }
 
-
-                if (thisMiddleVersion >= firstMiddleVersion && thisMiddleVersion <= lastMiddleVersion) correctVersionList.push(e);
-            })
-            console.log(correctVersionList.sort());
-            console.log(serverVersion.trim().split(' ').sort());
+            switch (firstVer) {
+                case '1.19.x': firstVer = '1.19'; break;
+                case '1.18.x': firstVer = '1.18.1'; break;
+                case '1.17.x': firstVer = '1.17'; break;
+                case '1.16.x': firstVer = '1.16'; break;
+                case '1.15.x': firstVer = '1.15'; break;
+                case '1.14.x': firstVer = '1.14'; break;
+                case '1.13.x': firstVer = '1.13'; break;
+                case '1.12.x': firstVer = '1.12'; break;
+                case '1.11.x': firstVer = '1.11'; break;
+                case '1.9.x': firstVer = '1.9'; break;
+                case '1.7.x': firstVer = '1.7.2'; break;
+                case '1.6.x': firstVer = '1.6.4'; break;
+            }
+            switch (lastVer) {
+                case '1.19.x': lastVer = '1.19.3'; break;
+                case '1.18.x': lastVer = '1.18.2'; break;
+                case '1.17.x': lastVer = '1.17.1'; break;
+                case '1.16.x': lastVer = '1.16.5'; break;
+                case '1.15.x': lastVer = '1.15.2'; break;
+                case '1.14.x': lastVer = '1.14.4'; break;
+                case '1.13.x': lastVer = '1.13.2'; break;
+                case '1.12.x': lastVer = '1.12.2'; break;
+                case '1.11.x': lastVer = '1.11.2'; break;
+                case '1.9.x': lastVer = '1.9.4'; break;
+                case '1.7.x': lastVer = '1.7.10'; break;
+                case '1.6.x': lastVer = '1.6.4'; break;
+            }
+            console.log(firstVer, lastVer);
+            console.log()
+            for (let i = versionList.indexOf(lastVer); i <= versionList.indexOf(firstVer); i++) correctVersionList.push(versionList[i]);
+            if (correctVersionList.length !== serverVersion.trim().split(' ').length) addWarningMsg(`版本号不匹配<br/>标题版本号: ${correctVersionList}<br/>模板版本号: ${serverVersion.trim().split(' ')}`, 'warn');
         }
 
-
+        // title regex test
         if (!checkTitle(threadTitle)) addWarningMsg(`标题不合格：</br>3-1: 帖名须为如下格式：</br>帖名：[网络类型]服务器名称 —— 一句话简介[版本号]`, 'warn');
+
         // test if emerald or contribution <0
         let contributionNum = (jq(".pil.cl dd").eq(2).text().split(' '))[0] as any as number;
         let emeraldNum = (jq(".pil.cl dd").eq(1).text().split(' ')[0]) as any as number;
@@ -159,5 +182,7 @@
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
 
+        // profit or not
+        let webMaximumFontSize = jq(this)
     })
 })();
