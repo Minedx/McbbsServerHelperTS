@@ -24,7 +24,6 @@
 (function () {
     'use strict';
 
-    let jq = jQuery.noConflict();
     let versionList = [
         '1.19.3', '1.19.2', '1.19.1', '1.19',
         '1.18.2', '1.18.1', '1.18',
@@ -44,6 +43,17 @@
     type FlagType = 'Tip1' | 'Tip2' | 'Tip3' | 'pass' | 'warning' | 'needCheck';
     type serverType = '商业' | '公益';
     type WarnType = 'check' | 'warn' | 'normal';
+
+    function without(arr1: any[], arr2: any[]) {
+        let result = new Array;
+        arr1.forEach(item => {
+            if (arr2.indexOf(item) === -1) {
+                result.push(item)
+            }
+        })
+
+        return result
+    }
 
     function addFlag(OriginText: string, FlagType: FlagType, fontColor?: string): string {
         let changedText = OriginText;
@@ -68,20 +78,29 @@
     // 页首添加警告信息
     function addWarningMsg(Message: string, warnType: WarnType): void {
         let finalMsg: string = `${Message}`;
-        let headMsg: string = `请注意: `
+        let headMsg: string = `请注意: <br/>`
         switch (warnType) {
             case "check":
-                headMsg = `🔔请注意: `;
+                headMsg = `🔔${headMsg}`;
                 break;
             case "warn":
-                headMsg = `❌请注意：`;
+                headMsg = `❌${headMsg}`;
                 break;
             case "normal":
-                headMsg = `🍃请注意：`;
+                headMsg = `🍃${headMsg}`;
                 break;
         }
-        jq(".ad .pls").append(`<div style="font-size:14px;">${headMsg}</div>`)
-        jq(".ad .plc").append(`<div style="font-size:14px;padding-left:1%;">${finalMsg}</div>`)
+        let locLeft = document.querySelector('#postlist > table.ad > tbody > tr > td.pls');
+        let locRight = document.querySelector('#postlist > table.ad > tbody > tr > td.plc');
+        let subNode1 = document.createElement('span');
+        subNode1.setAttribute('style', 'font-size:14px;');
+        subNode1.innerHTML = `${headMsg}`;
+        locLeft!.appendChild(subNode1);
+
+        let subNode2 = document.createElement('caption');
+        subNode2.setAttribute('style', 'font-size:14px;padding-left:1%;')
+        subNode2.innerHTML = `${finalMsg}`;
+        locRight!.appendChild(subNode2);
     }
 
     function getTitlePart(title: string, part: 'ServerName' | 'ServerIntroduction' | 'ServerVersion') {
@@ -107,14 +126,14 @@
     }
 
     //jq主函数
-    jq(function () {
-        let threadTitle = jq('#thread_subject').text();
+    document.addEventListener('load', function(){
+        let threadTitle = document.querySelector('#thread_subject')!.innerHTML.toString();
 
         //server name compare
-        if (jq(".cgtl.mbm tbody tr td").eq(0).text() == getTitlePart(threadTitle, 'ServerName')) addWarningMsg('标题与模板服务器名称不匹配.', 'warn');
+        if (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(1) > td')!.innerHTML.toString().replace('\t', '') !== getTitlePart(threadTitle, 'ServerName')) addWarningMsg('标题与模板服务器名称不匹配.', 'warn');
 
         //server version compare
-        let serverVersion = jq(".cgtl.mbm tbody tr td").eq(2).text();
+        let serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td')!.innerHTML.toString().replaceAll('&nbsp;',' ');
         // single version
         if (serverVersion.includes('-')) {
             if (serverVersion !== getTitlePart(threadTitle, 'ServerVersion')) addWarningMsg('标题与模板服务器版本不匹配.', 'warn');
@@ -161,28 +180,30 @@
                 case '1.6.x': lastVer = '1.6.4'; break;
             }
             console.log(firstVer, lastVer);
-            console.log()
+
+            let serverVersionList = serverVersion.trim().split(' ');
+
+            console.log(serverVersionList);
+            console.log(correctVersionList);
+
             for (let i = versionList.indexOf(lastVer); i <= versionList.indexOf(firstVer); i++) correctVersionList.push(versionList[i]);
-            if (correctVersionList.length !== serverVersion.trim().split(' ').length) addWarningMsg(`版本号不匹配<br/>标题版本号: ${correctVersionList}<br/>模板版本号: ${serverVersion.trim().split(' ')}`, 'warn');
+            if (correctVersionList.length !== serverVersionList.length) addWarningMsg(`版本号不匹配！<br/>标题版本号: ${correctVersionList}<br/>模板版本号: ${serverVersionList}<br/>Diff: ${without(correctVersionList, serverVersionList)}`, 'warn');
         }
 
         // title regex test
         if (!checkTitle(threadTitle)) addWarningMsg(`标题不合格：</br>3-1: 帖名须为如下格式：</br>帖名：[网络类型]服务器名称 —— 一句话简介[版本号]`, 'warn');
 
         // test if emerald or contribution <0
-        let contributionNum = (jq(".pil.cl dd").eq(2).text().split(' '))[0] as any as number;
-        let emeraldNum = (jq(".pil.cl dd").eq(1).text().split(' ')[0]) as any as number;
+        let contributionNum = (document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML.toString().split(' '))[0] as any as number;
+        let emeraldNum = (document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML.toString().split(' ')[0]) as any as number;
 
         if (contributionNum < 0) {
-            jq(".pil.cl dd").eq(2).html(addFlag(jq(".pil.cl dd").eq(2).text(), 'warning', 'red'));
+            document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML=addFlag(document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('贡献小于 0 !', 'warn');
         }
         if (emeraldNum < 0) {
-            jq(".pil.cl dd").eq(1).html(addFlag(jq(".pil.cl dd").eq(1).text(), 'warning', 'red'));
+            document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML=addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
-
-        // profit or not
-        let webMaximumFontSize = jq(this)
     })
 })();
