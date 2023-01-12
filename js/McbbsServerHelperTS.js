@@ -19,7 +19,6 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @require      file://D:\McbbsServerHelperTS\js\McbbsServerHelperTS.js
-// @require      https://cdn.staticfile.org/jquery/1.12.4/jquery.min.js
 // ==/UserScript==
 (function () {
     'use strict';
@@ -123,16 +122,19 @@
             return serverVersion;
         }
     }
-    function getMiddleVersion(version) {
-        var middleVersion = version.substring(version.indexOf('.') + 1, version.indexOf('.') + 3);
-        if (middleVersion.endsWith('.'))
-            middleVersion = middleVersion.substring(0, 1);
-        if (middleVersion.startsWith('.'))
-            middleVersion = middleVersion.substring(1);
-        return middleVersion;
+    function passButton() {
+        var buttonElement = document.createElement('button');
+        buttonElement.setAttribute('class', 'btnPass');
+        buttonElement.innerHTML = "<font color='green'>\u4E00\u952E\u901A\u8FC7</font>";
     }
-    //jq主函数
-    document.addEventListener('load', function () {
+    /*function getMiddleVersion(version: string) {
+        let middleVersion = version.substring(version.indexOf('.') + 1, version.indexOf('.') + 3)
+        if (middleVersion.endsWith('.')) middleVersion = middleVersion.substring(0, 1);
+        if (middleVersion.startsWith('.')) middleVersion = middleVersion.substring(1);
+        return middleVersion;
+    }*/
+    //主函数
+    window.onload = function () {
         var threadTitle = document.querySelector('#thread_subject').innerHTML.toString();
         //server name compare
         if (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(1) > td').innerHTML.toString().replace('\t', '') !== getTitlePart(threadTitle, 'ServerName'))
@@ -255,5 +257,5 @@
             document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
-    });
+    };
 })();

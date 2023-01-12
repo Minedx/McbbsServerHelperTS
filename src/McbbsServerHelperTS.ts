@@ -18,7 +18,6 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @require      file://D:\McbbsServerHelperTS\js\McbbsServerHelperTS.js
-// @require      https://cdn.staticfile.org/jquery/1.12.4/jquery.min.js
 // ==/UserScript==
 
 (function () {
@@ -118,22 +117,29 @@
         }
     }
 
-    function getMiddleVersion(version: string) {
+    function passButton() {
+        let buttonElement = document.createElement('button');
+        buttonElement.setAttribute('class', 'btnPass');
+        buttonElement.innerHTML = `<font color='green'>一键通过</font>`
+        
+    }
+
+    /*function getMiddleVersion(version: string) {
         let middleVersion = version.substring(version.indexOf('.') + 1, version.indexOf('.') + 3)
         if (middleVersion.endsWith('.')) middleVersion = middleVersion.substring(0, 1);
         if (middleVersion.startsWith('.')) middleVersion = middleVersion.substring(1);
         return middleVersion;
-    }
+    }*/
 
-    //jq主函数
-    document.addEventListener('load', function(){
+    //主函数
+    window.onload = function () {
         let threadTitle = document.querySelector('#thread_subject')!.innerHTML.toString();
 
         //server name compare
         if (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(1) > td')!.innerHTML.toString().replace('\t', '') !== getTitlePart(threadTitle, 'ServerName')) addWarningMsg('标题与模板服务器名称不匹配.', 'warn');
 
         //server version compare
-        let serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td')!.innerHTML.toString().replaceAll('&nbsp;',' ');
+        let serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td')!.innerHTML.toString().replaceAll('&nbsp;', ' ');
         // single version
         if (serverVersion.includes('-')) {
             if (serverVersion !== getTitlePart(threadTitle, 'ServerVersion')) addWarningMsg('标题与模板服务器版本不匹配.', 'warn');
@@ -198,11 +204,11 @@
         let emeraldNum = (document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML.toString().split(' ')[0]) as any as number;
 
         if (contributionNum < 0) {
-            document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML=addFlag(document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML, 'warning', 'red');
+            document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('贡献小于 0 !', 'warn');
         }
         if (emeraldNum < 0) {
-            document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML=addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
+            document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
     })
