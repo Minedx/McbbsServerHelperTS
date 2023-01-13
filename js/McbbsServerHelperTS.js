@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         McbbsServerReviewer TypeScriptVersion
 // @namespace    https://github.com/Minedx
-// @version      0.1
+// @version      0.0.1-beta
 // @description  mcbbsreviewserverhelper TS重构版
 // @author       Gesshoku Rin
 // @match        *://www.mcbbs.net/thread-*
@@ -18,7 +18,7 @@
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_setValue
-// @require      file://D:\McbbsServerHelperTS\js\McbbsServerHelperTS.js
+// @updateURL    https://github.com/Minedx/McbbsServerHelperTS/raw/main/js/McbbsServerHelperTS.js
 // ==/UserScript==
 (function () {
     'use strict';
