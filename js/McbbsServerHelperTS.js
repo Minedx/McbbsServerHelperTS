@@ -22,7 +22,7 @@
 // ==/UserScript==
 (function () {
     'use strict';
-    var versionList = [
+    let versionList = [
         '1.19.3', '1.19.2', '1.19.1', '1.19',
         '1.18.2', '1.18.1', '1.18',
         '1.17.1', '1.17',
@@ -39,8 +39,8 @@
         '1.6.4'
     ];
     function without(arr1, arr2) {
-        var result = new Array;
-        arr1.forEach(function (item) {
+        let result = new Array;
+        arr1.forEach(item => {
             if (arr2.indexOf(item) === -1) {
                 result.push(item);
             }
@@ -48,27 +48,27 @@
         return result;
     }
     function addFlag(OriginText, FlagType, fontColor) {
-        var changedText = OriginText;
+        let changedText = OriginText;
         if (fontColor !== undefined)
-            changedText = "<font color=\"" + fontColor + "\">" + OriginText + "</font>";
+            changedText = `<font color="${fontColor}">` + OriginText + `</font>`;
         switch (FlagType) {
             case "Tip1":
-                changedText = "\uD83C\uDF43" + changedText + "\uD83C\uDF43";
+                changedText = `🍃${changedText}🍃`;
                 break;
             case "Tip2":
-                changedText = "\uD83C\uDF41" + changedText + "\uD83C\uDF41";
+                changedText = `🍁${changedText}🍁`;
                 break;
             case "Tip3":
-                changedText = "\uD83C\uDF42" + changedText + "\uD83C\uDF42";
+                changedText = `🍂${changedText}🍂`;
                 break;
             case "pass":
-                changedText = "\u2705" + changedText + "\u2705";
+                changedText = `✅${changedText}✅`;
                 break;
             case "warning":
-                changedText = "\u274C" + changedText + "\u274C";
+                changedText = `❌${changedText}❌`;
                 break;
             case "needCheck":
-                changedText = "\uD83D\uDD14" + changedText + "\uD83D\uDD14";
+                changedText = `🔔${changedText}🔔`;
                 break;
         }
         return changedText;
@@ -82,65 +82,107 @@
     }
     // 页首添加警告信息
     function addWarningMsg(Message, warnType) {
-        var finalMsg = "" + Message;
-        var headMsg = "\u8BF7\u6CE8\u610F: <br/>";
+        let finalMsg = `${Message}`;
+        let headMsg = `请注意: <br/>`;
         switch (warnType) {
             case "check":
-                headMsg = "\uD83D\uDD14" + headMsg;
+                headMsg = `🔔${headMsg}`;
                 break;
             case "warn":
-                headMsg = "\u274C" + headMsg;
+                headMsg = `❌${headMsg}`;
                 break;
             case "normal":
-                headMsg = "\uD83C\uDF43" + headMsg;
+                headMsg = `🍃${headMsg}`;
                 break;
         }
-        var locLeft = document.querySelector('#postlist > table.ad > tbody > tr > td.pls');
-        var locRight = document.querySelector('#postlist > table.ad > tbody > tr > td.plc');
-        var subNode1 = document.createElement('span');
+        let locLeft = document.querySelector('#postlist > table.ad > tbody > tr > td.pls');
+        let locRight = document.querySelector('#postlist > table.ad > tbody > tr > td.plc');
+        let subNode1 = document.createElement('span');
         subNode1.setAttribute('style', 'font-size:14px;');
-        subNode1.innerHTML = "" + headMsg;
+        subNode1.innerHTML = `${headMsg}`;
         locLeft.appendChild(subNode1);
-        var subNode2 = document.createElement('caption');
+        let subNode2 = document.createElement('caption');
         subNode2.setAttribute('style', 'font-size:14px;padding-left:1%;');
-        subNode2.innerHTML = "" + finalMsg;
+        subNode2.innerHTML = `${finalMsg}`;
         locRight.appendChild(subNode2);
     }
     function getTitlePart(title, part) {
         //[多线]测试 —— 发布测试服务器[1.17.x-1.19.X]
         //[多线]
         if (part == 'ServerName') {
-            var serverName = title.substring(title.indexOf(']') + 1, title.indexOf('—' || '-' || '一')).trim();
+            let serverName = title.substring(title.indexOf(']') + 1, title.indexOf('—' || '-' || '一')).trim();
             return serverName;
         }
         else if (part == 'ServerIntroduction') {
-            var serverIntroduction = title.substring(title.lastIndexOf('—' || '-' || '一') + 1, title.lastIndexOf('[')).trim();
+            let serverIntroduction = title.substring(title.lastIndexOf('—' || '-' || '一') + 1, title.lastIndexOf('[')).trim();
             return serverIntroduction;
         }
         else if (part == 'ServerVersion') {
-            var serverVersion = title.substring(title.lastIndexOf('[') + 1, title.lastIndexOf(']')).trim();
+            let serverVersion = title.substring(title.lastIndexOf('[') + 1, title.lastIndexOf(']')).trim();
             return serverVersion;
         }
     }
-    function passButton() {
-        var buttonElement = document.createElement('button');
-        buttonElement.setAttribute('class', 'btnPass');
-        buttonElement.innerHTML = "<font color='green'>\u4E00\u952E\u901A\u8FC7</font>";
+    // 添加插件启动提示语
+    // loc: 发布时间右侧
+    function pluginStartConfirm() {
+        let childNode = document.createElement('span');
+        childNode.innerHTML = `🍃 <font color='red'><b>插件启动成功!</b></font> 🍃`;
+        document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pi > div.pti > div.authi').appendChild(childNode);
     }
-    /*function getMiddleVersion(version: string) {
-        let middleVersion = version.substring(version.indexOf('.') + 1, version.indexOf('.') + 3)
-        if (middleVersion.endsWith('.')) middleVersion = middleVersion.substring(0, 1);
-        if (middleVersion.startsWith('.')) middleVersion = middleVersion.substring(1);
-        return middleVersion;
-    }*/
+    function createPipeElement() {
+        let pipeElement = document.createElement('span');
+        pipeElement.setAttribute('class', 'pipe');
+        pipeElement.innerHTML = '|';
+        return pipeElement;
+    }
+    // 一键返回审核区
+    // loc: 上方操作面板
+    function sendBackReviewButton() {
+        let buttonElement = document.createElement('a');
+        buttonElement.setAttribute('class', 'btnSendBackReview');
+        buttonElement.innerHTML = `移回审核版重新编辑`;
+        buttonElement.addEventListener('click', () => {
+            modthreads(2, 'move');
+            setTimeout(() => {
+                ajaxget('forum.php?mod=ajax&action=getthreadtypes&fid=296', 'threadtypes');
+                if (296) {
+                    $('moveext').style.display = '';
+                }
+                else {
+                    $('moveext').style.display = 'none';
+                }
+                document.querySelector('#moveto').childNodes[6].childNodes[4].selected = true;
+                setTimeout(() => {
+                    document.querySelector('#threadtypes > select').childNodes[7].selected = true;
+                    setTimeout(() => {
+                        document.querySelector('#reason').innerHTML = '移回编辑区重新审核';
+                        setTimeout(() => {
+                            document.querySelector('#modsubmit > span').click();
+                        }, 150);
+                    }, 250);
+                }, 250);
+            }, 1000);
+        });
+        document.querySelector('#modmenu').insertBefore(createPipeElement(), document.querySelector('#modmenu').childNodes[0]);
+        document.querySelector('#modmenu').insertBefore(buttonElement, document.querySelector('#modmenu').childNodes[0]);
+    }
+    // 通过审核按钮
+    // loc: 警示标banner
+    function passCheckButton() {
+        let buttonElement = document.createElement('button');
+        buttonElement.setAttribute('class', 'btnPassCheck hm cl');
+        buttonElement.innerHTML = '✅ 一键通过审核';
+        document.querySelector('#my16modannouncement').appendChild(buttonElement);
+        document.querySelector('#my16modannouncement').appendChild(createPipeElement());
+    }
     //主函数
     window.onload = function () {
-        var threadTitle = document.querySelector('#thread_subject').innerHTML.toString();
+        let threadTitle = document.querySelector('#thread_subject').innerHTML.toString();
         //server name compare
         if (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(1) > td').innerHTML.toString().replace('\t', '') !== getTitlePart(threadTitle, 'ServerName'))
             addWarningMsg('标题与模板服务器名称不匹配.', 'warn');
         //server version compare
-        var serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td').innerHTML.toString().replaceAll('&nbsp;', ' ');
+        let serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td').innerHTML.toString().replaceAll('&nbsp;', ' ');
         // single version
         if (serverVersion.includes('-')) {
             if (serverVersion !== getTitlePart(threadTitle, 'ServerVersion'))
@@ -150,11 +192,11 @@
             addWarningMsg('存在其他版本 请自行判断', 'check');
         else {
             //multi version
-            var firstVer = getTitlePart(threadTitle, 'ServerVersion').split('-')[0].toLowerCase();
-            var lastVer = getTitlePart(threadTitle, 'ServerVersion').split('-')[1].toLowerCase();
-            var correctVersionList = [];
+            let firstVer = getTitlePart(threadTitle, 'ServerVersion').split('-')[0].toLowerCase();
+            let lastVer = getTitlePart(threadTitle, 'ServerVersion').split('-')[1].toLowerCase();
+            let correctVersionList = [];
             if (firstVer < lastVer) {
-                var tmp = firstVer;
+                let tmp = firstVer;
                 firstVer = lastVer;
                 lastVer = tmp;
             }
@@ -235,20 +277,20 @@
                     break;
             }
             console.log(firstVer, lastVer);
-            var serverVersionList = serverVersion.trim().split(' ');
+            let serverVersionList = serverVersion.trim().split(' ');
             console.log(serverVersionList);
             console.log(correctVersionList);
-            for (var i = versionList.indexOf(lastVer); i <= versionList.indexOf(firstVer); i++)
+            for (let i = versionList.indexOf(lastVer); i <= versionList.indexOf(firstVer); i++)
                 correctVersionList.push(versionList[i]);
             if (correctVersionList.length !== serverVersionList.length)
-                addWarningMsg("\u7248\u672C\u53F7\u4E0D\u5339\u914D\uFF01<br/>\u6807\u9898\u7248\u672C\u53F7: " + correctVersionList + "<br/>\u6A21\u677F\u7248\u672C\u53F7: " + serverVersionList + "<br/>Diff: " + without(correctVersionList, serverVersionList), 'warn');
+                addWarningMsg(`版本号不匹配！<br/>标题版本号: ${correctVersionList}<br/>模板版本号: ${serverVersionList}<br/>Diff: ${without(correctVersionList, serverVersionList)}`, 'warn');
         }
         // title regex test
         if (!checkTitle(threadTitle))
-            addWarningMsg("\u6807\u9898\u4E0D\u5408\u683C\uFF1A</br>3-1: \u5E16\u540D\u987B\u4E3A\u5982\u4E0B\u683C\u5F0F\uFF1A</br>\u5E16\u540D\uFF1A[\u7F51\u7EDC\u7C7B\u578B]\u670D\u52A1\u5668\u540D\u79F0 \u2014\u2014 \u4E00\u53E5\u8BDD\u7B80\u4ECB[\u7248\u672C\u53F7]", 'warn');
+            addWarningMsg(`标题不合格：</br>3-1: 帖名须为如下格式：</br>帖名：[网络类型]服务器名称 —— 一句话简介[版本号]`, 'warn');
         // test if emerald or contribution <0
-        var contributionNum = (document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML.toString().split(' '))[0];
-        var emeraldNum = (document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML.toString().split(' ')[0]);
+        let contributionNum = (document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML.toString().split(' '))[0];
+        let emeraldNum = (document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML.toString().split(' ')[0]);
         if (contributionNum < 0) {
             document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(6)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('贡献小于 0 !', 'warn');
@@ -257,5 +299,15 @@
             document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
+        // higher button
+        sendBackReviewButton();
+        // confirm plugin is start in page dom change
+        pluginStartConfirm();
+        // clear highlighted msg prepare for button
+        while (document.querySelectorAll('#my16modannouncement').length > 1)
+            document.querySelectorAll('#my16modannouncement')[1].remove();
+        document.querySelector('#my16modannouncement').innerHTML = '';
+        // after caption button
+        passCheckButton();
     };
 })();

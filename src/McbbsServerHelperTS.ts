@@ -117,19 +117,62 @@
         }
     }
 
-    function passButton() {
-        let buttonElement = document.createElement('button');
-        buttonElement.setAttribute('class', 'btnPass');
-        buttonElement.innerHTML = `<font color='green'>一键通过</font>`
-        
+    // 添加插件启动提示语
+    // loc: 发布时间右侧
+    function pluginStartConfirm() {
+        let childNode = document.createElement('span');
+        childNode.innerHTML = `🍃 <font color='red'><b>插件启动成功!</b></font> 🍃`;
+        document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pi > div.pti > div.authi')!.appendChild(childNode);
     }
 
-    /*function getMiddleVersion(version: string) {
-        let middleVersion = version.substring(version.indexOf('.') + 1, version.indexOf('.') + 3)
-        if (middleVersion.endsWith('.')) middleVersion = middleVersion.substring(0, 1);
-        if (middleVersion.startsWith('.')) middleVersion = middleVersion.substring(1);
-        return middleVersion;
-    }*/
+    function createPipeElement() {
+        let pipeElement = document.createElement('span');
+
+        pipeElement.setAttribute('class', 'pipe');
+        pipeElement.innerHTML = '|';
+        return pipeElement;
+    }
+
+    // 一键返回审核区
+    // loc: 上方操作面板
+    function sendBackReviewButton() {
+        let buttonElement = document.createElement('a');
+
+        buttonElement.setAttribute('class', 'btnSendBackReview');
+        buttonElement.innerHTML = `移回审核版重新编辑`;
+        buttonElement.addEventListener('click', () => {
+            modthreads(2, 'move');
+            setTimeout(() => {
+                ajaxget('forum.php?mod=ajax&action=getthreadtypes&fid=296', 'threadtypes'); if (296) { $('moveext').style.display = ''; } else { $('moveext').style.display = 'none'; }
+                document.querySelector('#moveto')!.childNodes[6].childNodes[4].selected = true;
+                setTimeout(() => {
+                    document.querySelector('#threadtypes > select')!.childNodes[7].selected = true;
+                    setTimeout(() => {
+                        document.querySelector('#reason')!.innerHTML = '移回编辑区重新审核';
+                        setTimeout(() => {
+                            document.querySelector('#modsubmit > span')!.click();
+                        }, 150);
+                    }, 250);
+                }, 250)
+            }, 1000)
+
+        })
+        document.querySelector('#modmenu')!.insertBefore(createPipeElement(), document.querySelector('#modmenu')!.childNodes[0]);
+        document.querySelector('#modmenu')!.insertBefore(buttonElement, document.querySelector('#modmenu')!.childNodes[0]);
+    }
+
+    // 通过审核按钮
+    // loc: 警示标banner
+    function passCheckButton() {
+        let buttonElement = document.createElement('button');
+
+        buttonElement.setAttribute('class', 'btnPassCheck hm cl');
+
+        buttonElement.innerHTML = '✅ 一键通过审核';
+
+        document.querySelector('#my16modannouncement')!.appendChild(buttonElement);
+        document.querySelector('#my16modannouncement')!.appendChild(createPipeElement());
+    }
 
     //主函数
     window.onload = function () {
@@ -139,7 +182,7 @@
         if (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(1) > td')!.innerHTML.toString().replace('\t', '') !== getTitlePart(threadTitle, 'ServerName')) addWarningMsg('标题与模板服务器名称不匹配.', 'warn');
 
         //server version compare
-        let serverVersion = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td')!.innerHTML.toString().replaceAll('&nbsp;', ' ');
+        let serverVersion = (document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(3) > td')!.innerHTML.toString() as any).replaceAll('&nbsp;', ' ');
         // single version
         if (serverVersion.includes('-')) {
             if (serverVersion !== getTitlePart(threadTitle, 'ServerVersion')) addWarningMsg('标题与模板服务器版本不匹配.', 'warn');
@@ -211,5 +254,18 @@
             document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML = addFlag(document.querySelectorAll('dl > dd:nth-child(4)')[1].innerHTML, 'warning', 'red');
             addWarningMsg('绿宝石小于 0 !', 'warn');
         }
-    })
+
+        // higher button
+        sendBackReviewButton();
+
+        // confirm plugin is start in page dom change
+        pluginStartConfirm();
+
+        // clear highlighted msg prepare for button
+        while (document.querySelectorAll('#my16modannouncement')!.length > 1) document.querySelectorAll('#my16modannouncement')[1].remove();
+        document.querySelector('#my16modannouncement')!.innerHTML = ''
+
+        // after caption button
+        passCheckButton();
+    }
 })();
