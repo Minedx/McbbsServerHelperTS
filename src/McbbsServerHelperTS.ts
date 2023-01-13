@@ -169,6 +169,31 @@
         buttonElement.setAttribute('class', 'btnPassCheck hm cl');
 
         buttonElement.innerHTML = '✅ 一键通过审核';
+        let moveSector = document.querySelector('tbody > tr:nth-child(1) > td.plc > div.pct > div > div.typeoption > table > tbody > tr:nth-child(5) > td')!.innerHTML.toString();
+
+        buttonElement.addEventListener('click', () => {
+            modthreads(2, 'move');
+            setTimeout(() => {
+                ajaxget('forum.php?mod=ajax&action=getthreadtypes&fid=179', 'threadtypes'); if (179) { $('moveext').style.display = ''; } else { $('moveext').style.display = 'none'; }
+                document.querySelector('#moveto')!.childNodes[6].childNodes[1].selected = true;
+                setTimeout(() => {
+                    switch (moveSector) {
+                        case '生存': document.querySelector('#threadtypes > select')!.childNodes[1].selected = true; break;
+                        case '创造': document.querySelector('#threadtypes > select')!.childNodes[2].selected = true; break;
+                        case '战争': document.querySelector('#threadtypes > select')!.childNodes[4].selected = true; break;
+                        case '混合（下面注明）': document.querySelector('#threadtypes > select')!.childNodes[3].selected = true; break;
+                        case '小游戏（Mini Game）': document.querySelector('#threadtypes > select')!.childNodes[6].selected = true; break;
+                        case '角色扮演（RPG）': document.querySelector('#threadtypes > select')!.childNodes[5].selected = true; break;
+                    }
+                    setTimeout(() => {
+                        document.querySelector('#reason')!.innerHTML = '通过';
+                        setTimeout(() => {
+                            document.querySelector('#modsubmit > span')!.click();
+                        }, 150);
+                    }, 250);
+                }, 250)
+            }, 1000)
+        })
 
         document.querySelector('#my16modannouncement')!.appendChild(buttonElement);
         document.querySelector('#my16modannouncement')!.appendChild(createPipeElement());
